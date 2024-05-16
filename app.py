@@ -25,6 +25,24 @@ def get_tiff_shape(file_path):
     except Exception as e:
         return None, str(e)
 
+def normalize(channel) :
+    min_val, max_val = np.min(channel), np.max(channel)
+
+    normalized_channel = ( (channel - min_val) / (max_val - min_val) ) * 255
+    return normalized_channel
+
+
+def preprocess(image) :
+    band1 = normalize(image[:, :, 2])
+    band2 = normalize(image[:, :, 3])
+    band3 = normalize(image[:, :, 4])
+
+    image_array = np.stack([band1, band2, band3], axis=-1).astype('uint8')
+    preprocessed_image = tifffile.Image.fromarray(image_array)
+
+    return preprocessed_image
+
+
 @app.route("/")
 def home():
     return "App is running"
@@ -42,8 +60,9 @@ def predict_image():
 
     try:
         # Save the file temporarily
-        temp_file_path = 'temp.tif'
-        file.save(temp_file_path)
+        temp_file_path = 'temp.jpg'
+        file = preprocess(file)
+        file.save(temp_file_path, format='JPEG')
 
         # Get the shape of the TIFF file
         shape, error = get_tiff_shape(temp_file_path)
