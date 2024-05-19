@@ -1,12 +1,15 @@
 from flask import Flask, jsonify, request, Response
 import os
 import socket
+
 import tifffile
+import numpy as np
+from PIL import Image
+import base64
 
-host_name = socket.gethostname()
-ip_address = socket.gethostbyname(host_name)
+from flask_cors import CORS
 
-app = Flask(__name__)
+#from util import *
 
 # Membaca file TIFF dan mengembalikan bentuk (shape)
 def get_tiff_shape(file_path):
@@ -31,16 +34,23 @@ def normalize(channel) :
     normalized_channel = ( (channel - min_val) / (max_val - min_val) ) * 255
     return normalized_channel
 
-
 def preprocess(image) :
     band1 = normalize(image[:, :, 2])
     band2 = normalize(image[:, :, 3])
     band3 = normalize(image[:, :, 4])
 
-    image_array = np.stack([band1, band2, band3], axis=-1).astype('uint8')
-    preprocessed_image = tifffile.Image.fromarray(image_array)
+    image_array = np.stack([band3, band2, band1], axis=-1).astype('uint8')
+    preprocessed_image = Image.fromarray(image_array).resize(
+      (image_array.shape[1] * 25, image_array.shape[0] * 25),
+      Image.NEAREST)
 
     return preprocessed_image
+
+host_name = socket.gethostname()
+ip_address = socket.gethostbyname(host_name)
+
+app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/")
@@ -61,14 +71,18 @@ def predict_image():
     try:
         # Save the file temporarily
         temp_file_path = 'temp.jpg'
+        file = tifffile.imread(file)
         file = preprocess(file)
-        file.save(temp_file_path, format='JPEG')
+        file.save(temp_file_path)
 
         # Get the shape of the TIFF file
-        shape, error = get_tiff_shape(temp_file_path)
+        # shape, error = get_tiff_shape(temp_file_path)
+        error = ''
 
         # Delete the temporary file
-        os.remove(temp_file_path)
+        # os.remove(temp_file_path)
+        image = open(temp_file_path, 'rb').read()
+        image = base64.b64encode(image).decode("utf-8")
 
         if error:
             if error == "File not found":
@@ -76,7 +90,10 @@ def predict_image():
             else:
                 return jsonify({'error': error}), 500
         else:
-            return jsonify({'message': 'Image received', 'shape': shape}), 200
+            print(image)
+            response = jsonify({'message': 'Image received', 'base64Image': image})
+            response.headers['Access-Control-Allow-Origin'] = 'http://127.0.0.1:5500' 
+            return response, 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
