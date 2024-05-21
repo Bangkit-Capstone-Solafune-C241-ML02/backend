@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, send_file
 import os
 import socket
 
@@ -9,9 +9,13 @@ import base64
 
 from flask_cors import CORS
 
-#from util import *
+from downloader import *
 
-# Membaca file TIFF dan mengembalikan bentuk (shape)
+from converter import *
+
+import time
+
+
 def get_tiff_shape(file_path):
     try:
         # Check if the file exists
@@ -51,7 +55,6 @@ ip_address = socket.gethostbyname(host_name)
 
 app = Flask(__name__)
 CORS(app)
-
 
 @app.route("/")
 def home():
@@ -97,5 +100,25 @@ def predict_image():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/downloadTif', methods=['POST'])
+def download_tif():
+    # Get the latitude and longitude from the request
+    data = request.get_json()
+    lat = data.get('latitude')
+    lng = data.get('longitude')
+
+
+    # Download the TIF file
+    download(lng, lat)
+    time.sleep(10)
+    # Convert TIF file to jpg
+    print("Converting...")
+    convert()
+
+    img_path = './sentinel2_preprocessed2.jpg'
+    return send_file(img_path, mimetype='image/jpeg'),200
+    # return jsonify({'message': 'Download TIF','lat':lat,'lng':lng}), 200
+
 if __name__ == "__main__":
-    app.run(host=ip_address, port=5000, debug=True)
+    app.run(host=ip_address, port=5000, debug=False)
