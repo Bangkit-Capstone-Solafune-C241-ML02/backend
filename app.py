@@ -118,7 +118,6 @@ def download_tif():
 
     img_path = './sentinel2_preprocessed2.jpg'
     return send_file(img_path, mimetype='image/jpeg'),200
-    # return jsonify({'message': 'Download TIF','lat':lat,'lng':lng}), 200
 
 if __name__ == "__main__":
     app.run(host=ip_address, port=5000, debug=False)

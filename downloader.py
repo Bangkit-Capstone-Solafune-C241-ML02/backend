@@ -39,12 +39,6 @@ dataset = (
     .map(mask_s2_clouds)
 )
 
-visualization = {
-    'min': 0.0,
-    'max': 0.3,
-    'bands': ['B4', 'B3', 'B2'],
-}
-
 def create_polygon_from_center(center_coord, corner_offset):
 
   longitude, latitude = center_coord
@@ -67,12 +61,8 @@ def create_polygon_from_center(center_coord, corner_offset):
 
 def download(lat, long):
     # Define the region of interest (ROI)
-    roi2 = ee.Geometry.Polygon(
-        [[[83.25, 17.65], [83.25, 17.75], [83.3, 17.75], [83.3, 17.65], [83.25, 17.65]]]
-    )
-
     roi = ee.Geometry.Polygon(
-        [create_polygon_from_center((long, lat), 0.025)]
+        [create_polygon_from_center((long, lat), (0.015/2))]
     )
 
     # Get the mean image from the dataset
