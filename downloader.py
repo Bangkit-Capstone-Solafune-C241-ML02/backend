@@ -66,11 +66,6 @@ def create_polygon_from_center(center_coord, corner_offset):
   return polygon_coords
 
 def download(lat, long):
-    # m = geemap.Map()
-    # m.setCenter(83.277, 17.7009,17);
-    # m.add_layer(dataset.mean(), visualization, 'RGB')
-    # m
-
     # Define the region of interest (ROI)
     roi2 = ee.Geometry.Polygon(
         [[[83.25, 17.65], [83.25, 17.75], [83.3, 17.75], [83.3, 17.65], [83.25, 17.65]]]
