@@ -1,19 +1,10 @@
-from flask import Flask, jsonify, request, Response, send_file
-import os
-import socket
-
-import tifffile
+import os,time,socket,tifffile,base64
 import numpy as np
+from flask import Flask, jsonify, request, Response, send_file
 from PIL import Image
-import base64
-
 from flask_cors import CORS
-
 from downloader import *
-
 from converter import *
-
-import time
 
 
 def get_tiff_shape(file_path):
@@ -111,7 +102,6 @@ def download_tif():
 
     # Download the TIF file
     download(lng, lat)
-    time.sleep(10)
     # Convert TIF file to jpg
     print("Converting...")
     convert()
@@ -120,4 +110,4 @@ def download_tif():
     return send_file(img_path, mimetype='image/jpeg'),200
 
 if __name__ == "__main__":
-    app.run(host=ip_address, port=5000, debug=False)
+    app.run(host=ip_address, port=5000, debug=True)
