@@ -1,21 +1,18 @@
-import requests
+import os
 import ee
 import geemap
 
+# Get the current working directory
+wd = os.getcwd()
+cred_path = os.path.join(wd, 'utils','json','solafune-424011-11884393242c.json')
+output_path = os.path.join(wd, 'utils','tif','sentinel2_image.tif')
+
 # Initialize Earth Engine
-service_account = 'solafune@encoded-road-413508.iam.gserviceaccount.com'
-credentials = ee.ServiceAccountCredentials(service_account, './encoded-road-413508-aff6e767bbef.json')
+service_account = 'abiya-946@solafune-424011.iam.gserviceaccount.com'
+credentials = ee.ServiceAccountCredentials(service_account, cred_path)
 ee.Initialize(credentials)
 
 def mask_s2_clouds(image):
-    """Masks clouds in a Sentinel-2 image using the QA band.
-
-    Args:
-        image (ee.Image): A Sentinel-2 image.
-
-    Returns:
-        ee.Image: A cloud-masked Sentinel-2 image.
-    """
     qa = image.select('QA60')
 
     # Bits 10 and 11 are clouds and cirrus, respectively.
@@ -75,7 +72,6 @@ def download(lat, long):
     }
 
     # Export the image to a local file
-    output_path = './sentinel2_image.tif'
     geemap.ee_export_image(image, filename=output_path, **export_params)
 
     print("Image exported to:", output_path)
