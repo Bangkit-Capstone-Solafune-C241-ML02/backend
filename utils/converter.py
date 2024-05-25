@@ -22,9 +22,12 @@ def preprocess(image) :
     return preprocessed_image
 
 def convert():
-  test_path = './dataset/s2_image/train_s2_image_0.tif'
-  main_path = './sentinel2_image.tif'
-  images = tifffile.imread(main_path)
+  # Define the paths
+  wd = os.getcwd()
+  tif_path = os.path.join(wd, 'utils','tif','sentinel2_image.tif')
+  jpg_path = os.path.join(wd, 'utils','jpg','sentinel2_preprocessed.jpg')
 
+  # Load the tif file, prprocess, convert, and save it
+  images = tifffile.imread(tif_path)
   images = preprocess(images)
-  images.save('./sentinel2_preprocessed2.jpg')
+  images.save(jpg_path)
