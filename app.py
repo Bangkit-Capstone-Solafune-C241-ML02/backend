@@ -31,12 +31,32 @@ def download_tif():
 
     # Convert TIF file to jpg
     print("Converting...")
-    convert()
+    convert(1,2,3)
 
     # Return the response
     wd = os.getcwd()
     img_path = os.path.join(wd, 'utils','jpg','sentinel2_preprocessed.jpg')
     return send_file(img_path, mimetype='image/jpeg'),200
+
+# Convert TIF file
+@app.route('/convertTif', methods=['POST'])
+def convert_tif():
+    
+    data = request.get_json()
+    values = data.get('values')
+    if not values or len(values) != 3:
+        return "Invalid input", 400
+
+    band1, band2, band3 = values
+
+    # Convert TIF file to jpg
+    print("Converting...")
+    convert(band1, band2, band3)
+
+    # Return the response
+    wd = os.getcwd()
+    img_path = os.path.join(wd, 'utils', 'jpg', 'sentinel2_preprocessed.jpg')
+    return send_file(img_path, mimetype='image/jpeg'), 200
 
 if __name__ == "__main__":
     app.run(host=ip_address, port=5000, debug=False)

@@ -9,10 +9,10 @@ def normalize(channel) :
     normalized_channel = ( (channel - min_val) / (max_val - min_val) ) * 255
     return normalized_channel
 
-def preprocess(image) :
-    band1 = normalize(image[:, :, 1])
-    band2 = normalize(image[:, :, 2])
-    band3 = normalize(image[:, :, 3])
+def preprocess(image,b1,b2,b3) :
+    band1 = normalize(image[:, :, b1])
+    band2 = normalize(image[:, :, b2])
+    band3 = normalize(image[:, :, b3])
 
     image_array = np.stack([band3, band2, band1], axis=-1).astype('uint8')
     preprocessed_image = Image.fromarray(image_array).resize(
@@ -21,7 +21,7 @@ def preprocess(image) :
 
     return preprocessed_image
 
-def convert():
+def convert(b1,b2,b3):
   # Define the paths
   wd = os.getcwd()
   tif_path = os.path.join(wd, 'utils','tif','sentinel2_image.tif')
@@ -29,5 +29,5 @@ def convert():
 
   # Load the tif file, prprocess, convert, and save it
   images = tifffile.imread(tif_path)
-  images = preprocess(images)
+  images = preprocess(images,b1,b2,b3)
   images.save(jpg_path)
