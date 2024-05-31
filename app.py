@@ -58,5 +58,25 @@ def convert_tif():
     img_path = os.path.join(wd, 'utils', 'jpg', 'sentinel2_preprocessed.jpg')
     return send_file(img_path, mimetype='image/jpeg'), 200
 
+# Upload TIF file
+@app.route('/uploadTif', methods=['POST'])
+def upload_tif():
+    if 'tifFile' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files['tifFile']
+
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    if file and file.filename.lower().endswith('.tif'):
+        # Save the file
+        wd = os.getcwd()
+        save_path = os.path.join(wd,'utils','upload', file.filename)
+        file.save(save_path)
+        return jsonify({"message": "File successfully uploaded"}), 200
+
+    return jsonify({"error": "Invalid file type"}), 400
+
 if __name__ == "__main__":
     app.run(host=ip_address, port=5000, debug=False)
