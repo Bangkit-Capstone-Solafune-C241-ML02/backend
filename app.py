@@ -89,10 +89,16 @@ def upload_tif():
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    if file and file.filename.lower().endswith('.tif'):
+    if file and file.filename.lower().endswith('.tif') or file.filename.lower().endswith('.tiff')):
         # Save the file
         wd = os.getcwd()
         save_path = os.path.join(wd, 'utils', 'tif_from_upload', 'upload_image.tif')
+
+        # If the file is .tiff, change the extension to .tif
+        if file.filename.lower().endswith('.tiff'):
+            filename = file.filename.rsplit('.', 1)[0] + '.tif'
+            save_path = os.path.join(wd, 'utils', 'tif_from_upload', filename)
+            
         file.save(save_path)
 
         # Convert TIF file to jpg
