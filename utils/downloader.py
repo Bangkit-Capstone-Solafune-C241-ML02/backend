@@ -5,7 +5,7 @@ import geemap
 # Get the current working directory
 wd = os.getcwd()
 cred_path = os.path.join(wd, 'utils','json','solafune-424011-11884393242c.json')
-output_path = os.path.join(wd, 'utils','tif','sentinel2_image.tif')
+output_path = os.path.join(wd, 'utils','tif_from_sentinel','sentinel2_image.tif')
 
 # Initialize Earth Engine
 service_account = 'abiya-946@solafune-424011.iam.gserviceaccount.com'

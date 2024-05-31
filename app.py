@@ -1,6 +1,6 @@
 import os
 import socket
-from flask import Flask, jsonify, request, Response, send_file
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from utils.downloader import *
 from utils.converter import *
@@ -31,16 +31,16 @@ def download_tif():
 
     # Convert TIF file to jpg
     print("Converting...")
-    convert(1,2,3)
+    convert(1, 2, 3, 'utils/tif_from_sentinel', 'utils/jpg_from_sentinel')
 
     # Return the response
     wd = os.getcwd()
-    img_path = os.path.join(wd, 'utils','jpg','sentinel2_preprocessed.jpg')
-    return send_file(img_path, mimetype='image/jpeg'),200
+    img_path = os.path.join(wd, 'utils', 'jpg_from_sentinel', 'sentinel2_preprocessed.jpg')
+    return send_file(img_path, mimetype='image/jpeg'), 200
 
-# Convert TIF file
-@app.route('/convertTif', methods=['POST'])
-def convert_tif():
+# Convert TIF file from sentinel
+@app.route('/convertTifSentinel', methods=['POST'])
+def convert_tif_sentinel():
     
     data = request.get_json()
     values = data.get('values')
@@ -51,11 +51,31 @@ def convert_tif():
 
     # Convert TIF file to jpg
     print("Converting...")
-    convert(band1, band2, band3)
+    convert(band1, band2, band3, 'utils/tif_from_sentinel', 'utils/jpg_from_sentinel')
 
     # Return the response
     wd = os.getcwd()
-    img_path = os.path.join(wd, 'utils', 'jpg', 'sentinel2_preprocessed.jpg')
+    img_path = os.path.join(wd, 'utils', 'jpg_from_sentinel', 'sentinel2_preprocessed.jpg')
+    return send_file(img_path, mimetype='image/jpeg'), 200
+
+# Convert TIF file from upload
+@app.route('/convertTifUpload', methods=['POST'])
+def convert_tif_upload():
+    
+    data = request.get_json()
+    values = data.get('values')
+    if not values or len(values) != 3:
+        return "Invalid input", 400
+
+    band1, band2, band3 = values
+
+    # Convert TIF file to jpg
+    print("Converting...")
+    convert(band1, band2, band3, 'utils/tif_from_upload', 'utils/jpg_from_upload','upload_image.tif')
+
+    # Return the response
+    wd = os.getcwd()
+    img_path = os.path.join(wd, 'utils', 'jpg_from_upload', 'upload_preprocessed.jpg')
     return send_file(img_path, mimetype='image/jpeg'), 200
 
 # Upload TIF file
@@ -72,9 +92,16 @@ def upload_tif():
     if file and file.filename.lower().endswith('.tif'):
         # Save the file
         wd = os.getcwd()
-        save_path = os.path.join(wd,'utils','upload', file.filename)
+        save_path = os.path.join(wd, 'utils', 'tif_from_upload', 'upload_image.tif')
         file.save(save_path)
-        return jsonify({"message": "File successfully uploaded"}), 200
+
+        # Convert TIF file to jpg
+        print("Converting...")
+        convert(1, 2, 3, 'utils/tif_from_upload', 'utils/jpg_from_upload', 'upload_image.tif')
+
+        # Return the converted image as response
+        img_path = os.path.join(wd, 'utils', 'jpg_from_upload', 'upload_preprocessed.jpg')
+        return send_file(img_path, mimetype='image/jpeg'), 200
 
     return jsonify({"error": "Invalid file type"}), 400
 

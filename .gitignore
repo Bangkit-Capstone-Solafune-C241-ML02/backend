@@ -163,3 +163,7 @@ cython_debug/
 # Private Key GCP Account Service
 encoded-road-413508-aff6e767bbef.json
 solafune-424011-11884393242c.json
+
+# File image
+*.tif
+*.jpg
