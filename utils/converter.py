@@ -15,7 +15,7 @@ def preprocess(image, b1, b2, b3):
 
     image_array = np.stack([band3, band2, band1], axis=-1).astype('uint8')
     preprocessed_image = Image.fromarray(image_array).resize(
-        (image_array.shape[1] * 25, image_array.shape[0] * 25),
+        (image_array.shape[0] * 10, image_array.shape[1] * 10),
         Image.NEAREST
     )
 

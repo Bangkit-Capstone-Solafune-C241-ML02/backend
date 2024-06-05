@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from utils.downloader import *
 from utils.converter import *
+from utils.predict import predict_from_path
 
 # Get alamat IP
 host_name = socket.gethostname()
@@ -58,26 +59,6 @@ def convert_tif_sentinel():
     img_path = os.path.join(wd, 'utils', 'jpg_from_sentinel', 'sentinel2_preprocessed.jpg')
     return send_file(img_path, mimetype='image/jpeg'), 200
 
-# Convert TIF file from upload
-@app.route('/convertTifUpload', methods=['POST'])
-def convert_tif_upload():
-    
-    data = request.get_json()
-    values = data.get('values')
-    if not values or len(values) != 3:
-        return "Invalid input", 400
-
-    band1, band2, band3 = values
-
-    # Convert TIF file to jpg
-    print("Converting...")
-    convert(band1, band2, band3, 'utils/tif_from_upload', 'utils/jpg_from_upload','upload_image.tif')
-
-    # Return the response
-    wd = os.getcwd()
-    img_path = os.path.join(wd, 'utils', 'jpg_from_upload', 'upload_preprocessed.jpg')
-    return send_file(img_path, mimetype='image/jpeg'), 200
-
 # Upload TIF file
 @app.route('/uploadTif', methods=['POST'])
 def upload_tif():
@@ -110,6 +91,52 @@ def upload_tif():
         return send_file(img_path, mimetype='image/jpeg'), 200
 
     return jsonify({"error": "Invalid file type"}), 400
+
+# Convert TIF file from upload
+@app.route('/convertTifUpload', methods=['POST'])
+def convert_tif_upload():
+    
+    data = request.get_json()
+    values = data.get('values')
+    if not values or len(values) != 3:
+        return "Invalid input", 400
+
+    band1, band2, band3 = values
+
+    # Convert TIF file to jpg
+    print("Converting...")
+    convert(band1, band2, band3, 'utils/tif_from_upload', 'utils/jpg_from_upload','upload_image.tif')
+
+    # Return the response
+    wd = os.getcwd()
+    img_path = os.path.join(wd, 'utils', 'jpg_from_upload', 'upload_preprocessed.jpg')
+    return send_file(img_path, mimetype='image/jpeg'), 200
+
+# Mask TIF file from sentinel
+@app.route('/maskTifSentinel', methods=['POST'])
+def mask_tif_sentinel():
+    # Predict the image
+    model_name = 'yolov5m'
+    source_path = os.path.join(os.getcwd(), 'utils', 'tif_from_sentinel')
+    predict_from_path(source_path, model_name)
+
+    # Return the response
+    wd = os.getcwd()
+    img_path = os.path.join(wd, 'utils', 'masks', 'mask.jpg')
+    return send_file(img_path, mimetype='image/jpeg'), 200
+
+# Mask TIF file from upload
+@app.route('/maskTifUpload', methods=['POST'])
+def mask_tif_upload():
+    # Predict the image
+    model_name = 'yolov5m'
+    source_path = os.path.join(os.getcwd(), 'utils', 'tif_from_upload')
+    predict_from_path(source_path, model_name)
+
+    # Return the response
+    wd = os.getcwd()
+    img_path = os.path.join(wd, 'utils', 'masks', 'mask.jpg')
+    return send_file(img_path, mimetype='image/jpeg'), 200
 
 if __name__ == "__main__":
     app.run(host=ip_address, port=5000, debug=False)

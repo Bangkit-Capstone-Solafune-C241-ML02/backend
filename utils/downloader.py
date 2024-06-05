@@ -59,7 +59,7 @@ def create_polygon_from_center(center_coord, corner_offset):
 def download(lat, long):
     # Define the region of interest (ROI)
     roi = ee.Geometry.Polygon(
-        [create_polygon_from_center((long, lat), (0.015/2))]
+        [create_polygon_from_center((long, lat), (0.0138/3))]
     )
 
     # Get the mean image from the dataset
@@ -67,7 +67,7 @@ def download(lat, long):
 
     # Define export parameters
     export_params = {
-        'scale': 5,
+        'scale': 2,
         'region': roi
     }
 
