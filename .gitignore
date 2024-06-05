@@ -167,3 +167,4 @@ solafune-424011-11884393242c.json
 # File image
 *.tif
 *.jpg
+!mask.jpg
