@@ -24,15 +24,14 @@ thread_lock = threading.Lock()
 def home():
     return "App is running"
 
-# Download TIF file handler
-def handle_download_tif(thread_id, lat, lng):
+def handle_download_tif(lat, lng, result, thread_id):
     print(f"Thread {thread_id} is handling the download.")
     download(lng, lat)
     print("Converting...")
     convert(1, 2, 3, 'utils/tif_from_sentinel', 'utils/jpg_from_sentinel')
     wd = os.getcwd()
     img_path = os.path.join(wd, 'utils', 'jpg_from_sentinel', 'sentinel2_preprocessed.jpg')
-    return img_path
+    result['img_path'] = img_path
 
 @app.route('/downloadTif', methods=['POST'])
 def download_tif():
@@ -45,19 +44,21 @@ def download_tif():
         thread_counter += 1
         thread_id = thread_counter
     
-    thread = threading.Thread(target=handle_download_tif, args=(thread_id, lat, lng))
+    result = {}
+    thread = threading.Thread(target=handle_download_tif, args=(lat, lng, result, thread_id))
     thread.start()
-    return jsonify({"status": "Processing", "thread_id": thread_id}), 202
+    thread.join()
+    
+    return send_file(result['img_path'], mimetype='image/jpeg'), 200
 
-# Convert TIF file from sentinel handler
-def handle_convert_tif_sentinel(thread_id, values):
+def handle_convert_tif_sentinel(values, result, thread_id):
     print(f"Thread {thread_id} is handling the conversion.")
     band1, band2, band3 = values
     print("Converting...")
     convert(band1, band2, band3, 'utils/tif_from_sentinel', 'utils/jpg_from_sentinel')
     wd = os.getcwd()
     img_path = os.path.join(wd, 'utils', 'jpg_from_sentinel', 'sentinel2_preprocessed.jpg')
-    return img_path
+    result['img_path'] = img_path
 
 @app.route('/convertTifSentinel', methods=['POST'])
 def convert_tif_sentinel():
@@ -71,18 +72,20 @@ def convert_tif_sentinel():
         thread_counter += 1
         thread_id = thread_counter
     
-    thread = threading.Thread(target=handle_convert_tif_sentinel, args=(thread_id, values))
+    result = {}
+    thread = threading.Thread(target=handle_convert_tif_sentinel, args=(values, result, thread_id))
     thread.start()
-    return jsonify({"status": "Processing", "thread_id": thread_id}), 202
+    thread.join()
+    
+    return send_file(result['img_path'], mimetype='image/jpeg'), 200
 
-# Upload TIF file handler
-def handle_upload_tif(thread_id, file):
+def handle_upload_tif(file, result, thread_id):
     print(f"Thread {thread_id} is handling the upload.")
     file.save(os.path.join('utils/tif_from_upload', 'upload_image.tif'))
     convert(1, 2, 3, 'utils/tif_from_upload', 'utils/jpg_from_upload', 'upload_image.tif')
     wd = os.getcwd()
     img_path = os.path.join(wd, 'utils', 'jpg_from_upload', 'upload_preprocessed.jpg')
-    return img_path
+    result['img_path'] = img_path
 
 @app.route('/uploadTif', methods=['POST'])
 def upload_tif():
@@ -97,20 +100,22 @@ def upload_tif():
             thread_counter += 1
             thread_id = thread_counter
         
-        thread = threading.Thread(target=handle_upload_tif, args=(thread_id, file))
+        result = {}
+        thread = threading.Thread(target=handle_upload_tif, args=(file, result, thread_id))
         thread.start()
-        return jsonify({"status": "Processing", "thread_id": thread_id}), 202
+        thread.join()
+        
+        return send_file(result['img_path'], mimetype='image/jpeg'), 200
     return jsonify({"error": "Invalid file type"}), 400
 
-# Convert TIF file from upload handler
-def handle_convert_tif_upload(thread_id, values):
+def handle_convert_tif_upload(values, result, thread_id):
     print(f"Thread {thread_id} is handling the conversion.")
     band1, band2, band3 = values
     print("Converting...")
     convert(band1, band2, band3, 'utils/tif_from_upload', 'utils/jpg_from_upload', 'upload_image.tif')
     wd = os.getcwd()
     img_path = os.path.join(wd, 'utils', 'jpg_from_upload', 'upload_preprocessed.jpg')
-    return img_path
+    result['img_path'] = img_path
 
 @app.route('/convertTifUpload', methods=['POST'])
 def convert_tif_upload():
@@ -124,19 +129,21 @@ def convert_tif_upload():
         thread_counter += 1
         thread_id = thread_counter
     
-    thread = threading.Thread(target=handle_convert_tif_upload, args=(thread_id, values))
+    result = {}
+    thread = threading.Thread(target=handle_convert_tif_upload, args=(values, result, thread_id))
     thread.start()
-    return jsonify({"status": "Processing", "thread_id": thread_id}), 202
+    thread.join()
+    
+    return send_file(result['img_path'], mimetype='image/jpeg'), 200
 
-# Mask TIF file from sentinel handler
-def handle_mask_tif_sentinel(thread_id):
+def handle_mask_tif_sentinel(result, thread_id):
     print(f"Thread {thread_id} is handling the mask.")
     model_name = 'yolov5m'
     source_path = os.path.join(os.getcwd(), 'utils', 'tif_from_sentinel')
     predict_from_path(source_path, model_name)
     wd = os.getcwd()
     img_path = os.path.join(wd, 'utils', 'masks', 'mask.jpg')
-    return img_path
+    result['img_path'] = img_path
 
 @app.route('/maskTifSentinel', methods=['POST'])
 def mask_tif_sentinel():
@@ -145,19 +152,21 @@ def mask_tif_sentinel():
         thread_counter += 1
         thread_id = thread_counter
     
-    thread = threading.Thread(target=handle_mask_tif_sentinel, args=(thread_id,))
+    result = {}
+    thread = threading.Thread(target=handle_mask_tif_sentinel, args=(result, thread_id))
     thread.start()
-    return jsonify({"status": "Processing", "thread_id": thread_id}), 202
+    thread.join()
+    
+    return send_file(result['img_path'], mimetype='image/jpeg'), 200
 
-# Mask TIF file from upload handler
-def handle_mask_tif_upload(thread_id):
+def handle_mask_tif_upload(result, thread_id):
     print(f"Thread {thread_id} is handling the mask.")
     model_name = 'yolov5m'
     source_path = os.path.join(os.getcwd(), 'utils', 'tif_from_upload')
     predict_from_path(source_path, model_name)
     wd = os.getcwd()
     img_path = os.path.join(wd, 'utils', 'masks', 'mask.jpg')
-    return img_path
+    result['img_path'] = img_path
 
 @app.route('/maskTifUpload', methods=['POST'])
 def mask_tif_upload():
@@ -166,9 +175,12 @@ def mask_tif_upload():
         thread_counter += 1
         thread_id = thread_counter
     
-    thread = threading.Thread(target=handle_mask_tif_upload, args=(thread_id,))
+    result = {}
+    thread = threading.Thread(target=handle_mask_tif_upload, args=(result, thread_id))
     thread.start()
-    return jsonify({"status": "Processing", "thread_id": thread_id}), 202
+    thread.join()
+    
+    return send_file(result['img_path'], mimetype='image/jpeg'), 200
 
 if __name__ == "__main__":
     app.run(host=ip_address, port=5000, debug=False)
