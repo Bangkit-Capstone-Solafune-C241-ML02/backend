@@ -1,11 +1,12 @@
 import os
 import ee
 import geemap
+import uuid
 
 # Get the current working directory
 wd = os.getcwd()
-cred_path = os.path.join(wd, 'utils','json','solafune-424011-11884393242c.json')
-output_path = os.path.join(wd, 'utils','tif_from_sentinel','sentinel2_image.tif')
+cred_path = os.path.join(wd, 'utils', 'json', 'solafune-424011-11884393242c.json')
+output_base_path = os.path.join(wd, 'utils', 'tif_from_sentinel')
 
 # Initialize Earth Engine
 service_account = 'abiya-946@solafune-424011.iam.gserviceaccount.com'
@@ -37,29 +38,33 @@ dataset = (
 )
 
 def create_polygon_from_center(center_coord, corner_offset):
+    longitude, latitude = center_coord
 
-  longitude, latitude = center_coord
+    # Calculate corner coordinates
+    north = longitude + corner_offset
+    south = longitude - corner_offset
+    east = latitude + corner_offset
+    west = latitude - corner_offset
 
-  # Calculate corner coordinates
-  north = longitude + corner_offset
-  south = longitude - corner_offset
-  east = latitude + corner_offset
-  west = latitude - corner_offset
-
-  # Create polygon coordinates
-  polygon_coords = [
-    (west, north),
-    (west, south),
-    (east, south),
-    (east, north),
-    (west, north)
-  ]
-  return polygon_coords
+    # Create polygon coordinates
+    polygon_coords = [
+        (west, north),
+        (west, south),
+        (east, south),
+        (east, north),
+        (west, north)
+    ]
+    return polygon_coords
 
 def download(lat, long):
+    # Create unique directory for this request
+    unique_id = str(uuid.uuid4())
+    unique_output_path = os.path.join(output_base_path, unique_id)
+    os.makedirs(unique_output_path, exist_ok=True)
+
     # Define the region of interest (ROI)
     roi = ee.Geometry.Polygon(
-        [create_polygon_from_center((long, lat), (0.0138/3))]
+        [create_polygon_from_center((long, lat), (0.0138 / 3))]
     )
 
     # Get the mean image from the dataset
@@ -72,6 +77,8 @@ def download(lat, long):
     }
 
     # Export the image to a local file
-    geemap.ee_export_image(image, filename=output_path, **export_params)
+    unique_output_file = os.path.join(unique_output_path, 'sentinel2_image.tif')
+    geemap.ee_export_image(image, filename=unique_output_file, **export_params)
 
-    print("Image exported to:", output_path)
+    print("Image exported to:", unique_output_file)
+    return unique_output_file  # Return path of the downloaded file
