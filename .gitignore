@@ -168,3 +168,4 @@ solafune-424011-11884393242c.json
 *.tif
 *.jpg
 !mask.jpg
+.DS_Store

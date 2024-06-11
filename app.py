@@ -139,4 +139,4 @@ def mask_tif_upload():
     return send_file(img_path, mimetype='image/jpeg'), 200
 
 if __name__ == "__main__":
-    app.run(host=ip_address, port=5000, debug=False)
+    app.run(host=ip_address, port=5000, debug=True)

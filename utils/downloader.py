@@ -67,7 +67,7 @@ def download(lat, long):
 
     # Define export parameters
     export_params = {
-        'scale': 2,
+        'scale': 5,
         'region': roi
     }
 
