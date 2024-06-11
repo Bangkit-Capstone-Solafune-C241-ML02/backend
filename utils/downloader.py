@@ -72,7 +72,7 @@ def download(lat, long, thread_id, client_ip):
     }
 
     wd = os.getcwd()    
-    output_path = os.path.join(wd, 'utils',f'tif_from_sentinel_{thread_id}_{client_ip}','sentinel2_image.tif')
+    output_path = os.path.join(wd, 'utils',f'tif_from_sentinel',f'sentinel2_image_{thread_id}_{client_ip}.tif')
 
     # Export the image to a local file
     geemap.ee_export_image(image, filename=output_path, **export_params)

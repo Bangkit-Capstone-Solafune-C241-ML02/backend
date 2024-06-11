@@ -21,15 +21,15 @@ def preprocess(image, b1, b2, b3):
 
     return preprocessed_image
 
-def convert(b1, b2, b3, source_folder, target_folder, filename=None):
+def convert(b1, b2, b3, source_folder, target_folder,filename,thread_id,client_ip):
     # Define the paths
     wd = os.getcwd()
     if filename == 'upload_image.tif':
-        tif_path = os.path.join(wd, source_folder, 'upload_image.tif')
-        jpg_filename = 'upload_preprocessed.jpg'
+        tif_path = os.path.join(wd, source_folder, f'upload_image_{thread_id}_{client_ip}.tif')
+        jpg_filename = f'upload_preprocessed_{thread_id}_{client_ip}.jpg'
     else:
-        tif_path = os.path.join(wd, source_folder, 'sentinel2_image.tif')
-        jpg_filename = 'sentinel2_preprocessed.jpg'
+        tif_path = os.path.join(wd, source_folder, f'sentinel2_image_{thread_id}_{client_ip}.tif')
+        jpg_filename = f'sentinel2_preprocessed_{thread_id}_{client_ip}.jpg'
 
     jpg_path = os.path.join(wd, target_folder, jpg_filename)
 

@@ -348,8 +348,13 @@ def run(
             binary_mask = cv2.resize(binary_mask, (h//10, w//10), interpolation=cv2.INTER_NEAREST)
             binary_mask = cv2.resize(binary_mask, (h, w), interpolation=cv2.INTER_NEAREST)
 
-            exp_path = os.path.join(os.getcwd(), 'utils', 'masks', 'mask.jpg')
-            
+            # exp_path = os.path.join(os.getcwd(), 'utils', 'masks', 'mask.jpg')
+            # plt.imsave(exp_path, binary_mask)
+
+            # file_name = paths[si].split('/')[-1].replace('tif', 'jpg')
+            # print("\n"*3)
+            # print(file_name)
+            exp_path = os.path.join(os.getcwd(), 'utils', 'masks', f'mask_{"2"}_{"192.168.56.1"}.jpg')
             plt.imsave(exp_path, binary_mask)
             
             # Predictions
@@ -493,6 +498,7 @@ def parse_opt():
     parser.add_argument("--exist-ok", action="store_true", help="existing project/name ok, do not increment")
     parser.add_argument("--half", action="store_true", help="use FP16 half-precision inference")
     parser.add_argument("--dnn", action="store_true", help="use OpenCV DNN for ONNX inference")
+
     opt = parser.parse_args()
     opt.data = check_yaml(opt.data)  # check YAML
     # opt.save_json |= opt.data.endswith('coco.yaml')

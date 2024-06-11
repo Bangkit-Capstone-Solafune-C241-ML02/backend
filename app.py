@@ -28,9 +28,9 @@ def handle_download_tif(lat, lng, result, thread_id, client_ip):
     print(f"Thread {thread_id} is handling the download.")
     download(lng, lat, thread_id, client_ip)
     print("Converting...")
-    convert(1, 2, 3, f'utils/tif_from_sentinel_{thread_id}_{client_ip}', f'utils/jpg_from_sentinel_{thread_id}_{client_ip}')
+    convert(1, 2, 3, f'utils/tif_from_sentinel', f'utils/jpg_from_sentinel',None,thread_id,client_ip)
     wd = os.getcwd()
-    img_path = os.path.join(wd, f'utils/jpg_from_sentinel_{thread_id}_{client_ip}', 'sentinel2_preprocessed.jpg')
+    img_path = os.path.join(wd, f'utils/jpg_from_sentinel', f'sentinel2_preprocessed_{thread_id}_{client_ip}.jpg')
     result['img_path'] = img_path
 
 @app.route('/downloadTif', methods=['POST'])
@@ -56,9 +56,9 @@ def handle_convert_tif_sentinel(values, result, thread_id, client_ip):
     print(f"Thread {thread_id} is handling the conversion.")
     band1, band2, band3 = values
     print("Converting...")
-    convert(band1, band2, band3, f'utils/tif_from_sentinel_{thread_id}_{client_ip}', f'utils/jpg_from_sentinel_{thread_id}_{client_ip}')
+    convert(1, 2, 3, f'utils/tif_from_sentinel', f'utils/jpg_from_sentinel',None,thread_id,client_ip)
     wd = os.getcwd()
-    img_path = os.path.join(wd, f'utils/jpg_from_sentinel_{thread_id}_{client_ip}', 'sentinel2_preprocessed.jpg')
+    img_path = os.path.join(wd, f'utils/jpg_from_sentinel', f'sentinel2_preprocessed_{thread_id}_{client_ip}.jpg')
     result['img_path'] = img_path
 
 @app.route('/convertTifSentinel', methods=['POST'])
@@ -83,10 +83,10 @@ def convert_tif_sentinel():
 
 def handle_upload_tif(file, result, thread_id, client_ip):
     print(f"Thread {thread_id} is handling the upload.")
-    file.save(os.path.join(f'utils/tif_from_upload_{thread_id}_{client_ip}', 'upload_image.tif'))
-    convert(1, 2, 3, f'utils/tif_from_upload_{thread_id}_{client_ip}', f'utils/jpg_from_upload_{thread_id}_{client_ip}', 'upload_image.tif')
+    file.save(os.path.join(f'utils/tif_from_upload', f'upload_image_{thread_id}_{client_ip}.tif'))
+    convert(1, 2, 3, f'utils/tif_from_upload', f'utils/jpg_from_upload','upload_image.tif',thread_id,client_ip)
     wd = os.getcwd()
-    img_path = os.path.join(wd, f'utils/jpg_from_upload_{thread_id}_{client_ip}', 'upload_preprocessed.jpg')
+    img_path = os.path.join(wd, f'utils/jpg_from_upload', f'upload_preprocessed_{thread_id}_{client_ip}.jpg')
     result['img_path'] = img_path
 
 @app.route('/uploadTif', methods=['POST'])
@@ -115,9 +115,9 @@ def handle_convert_tif_upload(values, result, thread_id, client_ip):
     print(f"Thread {thread_id} is handling the conversion.")
     band1, band2, band3 = values
     print("Converting...")
-    convert(band1, band2, band3, f'utils/tif_from_upload_{thread_id}_{client_ip}', f'utils/jpg_from_upload_{thread_id}_{client_ip}', 'upload_image.tif')
+    convert(1, 2, 3, f'utils/tif_from_upload', f'utils/jpg_from_upload','upload_image.tif',thread_id,client_ip)
     wd = os.getcwd()
-    img_path = os.path.join(wd, f'utils/jpg_from_upload_{thread_id}_{client_ip}', 'upload_preprocessed.jpg')
+    img_path = os.path.join(wd, f'utils/jpg_from_upload', f'upload_preprocessed_{thread_id}_{client_ip}.jpg')
     result['img_path'] = img_path
 
 @app.route('/convertTifUpload', methods=['POST'])
@@ -143,10 +143,10 @@ def convert_tif_upload():
 def handle_mask_tif_sentinel(result, thread_id, client_ip):
     print(f"Thread {thread_id} is handling the mask.")
     model_name = 'yolov5m'
-    source_path = os.path.join(os.getcwd(), f'utils/tif_from_sentinel_{thread_id}_{client_ip}')
+    source_path = os.path.join(os.getcwd(), f'utils/tif_from_sentinel')
     predict_from_path(source_path, model_name)
     wd = os.getcwd()
-    img_path = os.path.join(wd, f'utils/masks_{thread_id}_{client_ip}', 'mask.jpg')
+    img_path = os.path.join(wd, f'utils/masks', f'mask_{thread_id}_{client_ip}.jpg')
     result['img_path'] = img_path
 
 @app.route('/maskTifSentinel', methods=['POST'])
@@ -167,10 +167,10 @@ def mask_tif_sentinel():
 def handle_mask_tif_upload(result, thread_id, client_ip):
     print(f"Thread {thread_id} is handling the mask.")
     model_name = 'yolov5m'
-    source_path = os.path.join(os.getcwd(), f'utils/tif_from_upload_{thread_id}_{client_ip}')
+    source_path = os.path.join(os.getcwd(), f'utils/tif_from_upload')
     predict_from_path(source_path, model_name)
     wd = os.getcwd()
-    img_path = os.path.join(wd, f'utils/masks_{thread_id}_{client_ip}', 'mask.jpg')
+    img_path = os.path.join(wd, f'utils/masks', f'mask_{thread_id}_{client_ip}.jpg')
     result['img_path'] = img_path
 
 @app.route('/maskTifUpload', methods=['POST'])
