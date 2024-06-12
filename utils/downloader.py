@@ -5,7 +5,6 @@ import geemap
 # Get the current working directory
 wd = os.getcwd()
 cred_path = os.path.join(wd, 'utils','json','solafune-424011-11884393242c.json')
-output_path = os.path.join(wd, 'utils','tif_from_sentinel','sentinel2_image.tif')
 
 # Initialize Earth Engine
 service_account = 'abiya-946@solafune-424011.iam.gserviceaccount.com'
@@ -72,6 +71,7 @@ def download(lat, long):
     }
 
     # Export the image to a local file
+    output_path = os.path.join(wd, 'utils','tif_from_sentinel','sentinel2_image.tif')
     geemap.ee_export_image(image, filename=output_path, **export_params)
 
     print("Image exported to:", output_path)
