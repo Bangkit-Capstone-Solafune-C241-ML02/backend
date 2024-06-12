@@ -14,10 +14,32 @@ def preprocess(image, b1, b2, b3):
     band3 = normalize(image[:, :, b3])
 
     image_array = np.stack([band3, band2, band1], axis=-1).astype('uint8')
-    preprocessed_image = Image.fromarray(image_array).resize(
-        (image_array.shape[0] * 10, image_array.shape[1] * 10),
-        Image.NEAREST
-    )
+
+    h, w, c = image_array.shape
+
+    if h < 32 :
+        preprocessed_image = Image.fromarray(image_array).resize(
+            (h * 10, w * 10),
+            Image.NEAREST
+        )
+
+    elif h < 64 :
+        preprocessed_image = Image.fromarray(image_array).resize(
+            (h * 5, w * 5),
+            Image.NEAREST
+        )
+
+    elif h < 128 :
+        preprocessed_image = Image.fromarray(image_array).resize(
+            (h * 3, w * 3),
+            Image.NEAREST
+        )
+    
+    else :
+        preprocessed_image = Image.fromarray(image_array).resize(
+            (h * 1, w * 1),
+            Image.NEAREST
+        )
 
     return preprocessed_image
 

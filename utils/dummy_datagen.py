@@ -10,6 +10,11 @@ def create_dummy_folder(dummy_main_path) :
     
     masks
     |    |-sentinel_2_mask.jpg
+    |    |-sentinel_2_image_x.jpg
+    |
+    painted_iamge
+    |    |-sentinel_2_mask.jpg
+    |    |-sentinel_2_image_x.jpg
     |
     predict
     |-preprocessed # Placeholder folder for preprocessed image
@@ -40,6 +45,7 @@ def create_dummy_folder(dummy_main_path) :
     """
     # Main folder
     masks_folder_path = os.path.join(dummy_main_path, 'masks')
+    painted_image_folder_path = os.path.join(dummy_main_path, 'painted_image')
     dummy_folder_path = os.path.join(dummy_main_path, 'predict')
     # Train, Val, Config, Preprocessed folder
     train_folder_path = os.path.join(dummy_folder_path, 'train')
@@ -55,6 +61,7 @@ def create_dummy_folder(dummy_main_path) :
     # Create Folder
     os.makedirs(masks_folder_path, exist_ok=True) # Masks folder
     os.makedirs(dummy_folder_path, exist_ok=True) # Main folder
+    os.makedirs(painted_image_folder_path, exist_ok=True) # Painted image folder
 
     os.makedirs(train_folder_path, exist_ok=True) # Train folder
     os.makedirs(val_folder_path, exist_ok=True) # Val folder
@@ -68,6 +75,7 @@ def create_dummy_folder(dummy_main_path) :
 
     # Folder path dictionary
     folder_path = {
+        'painted_image' : painted_image_folder_path,
         'masks' : masks_folder_path,
         'dummy' : dummy_folder_path,
         'train' : train_folder_path,

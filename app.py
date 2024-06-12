@@ -116,7 +116,7 @@ def convert_tif_upload():
 @app.route('/maskTifSentinel', methods=['POST'])
 def mask_tif_sentinel():
     # Predict the image
-    model_name = 'yolov5m'
+    model_name = 'new_model'
     source_path = os.path.join(os.getcwd(), 'utils', 'tif_from_sentinel')
     predict_from_path(source_path, model_name)
 
@@ -129,13 +129,29 @@ def mask_tif_sentinel():
 @app.route('/maskTifUpload', methods=['POST'])
 def mask_tif_upload():
     # Predict the image
-    model_name = 'yolov5m'
+    model_name = 'new_model'
     source_path = os.path.join(os.getcwd(), 'utils', 'tif_from_upload')
     predict_from_path(source_path, model_name)
 
     # Return the response
     wd = os.getcwd()
     img_path = os.path.join(wd, 'utils', 'masks', 'mask.jpg')
+    return send_file(img_path, mimetype='image/jpeg'), 200
+
+# Painting TIF File from sentinel
+@app.route('/paintingTifSentinel', methods=['POST'])
+def paint_tif_sentinel():
+    # Return the response
+    wd = os.getcwd()
+    img_path = os.path.join(wd, 'utils', 'painted_image', 'sentinel2_image.jpg')
+    return send_file(img_path, mimetype='image/jpeg'), 200
+
+# Painting TIF File from upload
+@app.route('/paintingTifUpload', methods=['POST'])
+def paint_tif_upload():
+    # Return the response
+    wd = os.getcwd()
+    img_path = os.path.join(wd, 'utils', 'painted_image', 'upload_image.jpg')
     return send_file(img_path, mimetype='image/jpeg'), 200
 
 if __name__ == "__main__":

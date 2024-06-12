@@ -20,77 +20,57 @@ def read_images(path) :
     return images
 
 
-def select_band(band, path, preprocess=None) :
+def select_band(band, path) :
     images = read_images(path)
 
     extracted_channel = []
 
     for image in images :
-        extracted_channel.append(image[:, :, band])
-
-    if preprocess == 'min_max' :
-        min, max = find_min_max(extracted_channel)
-        extracted_channel = norm_min_max(extracted_channel, min, max)
+        extracted_channel.append(image[:, :, band] * 10000)
 
     return extracted_channel
 
-
-def find_min_max(arr) :
-    min_val = np.min(arr[0])
-    max_val = np.max(arr[0])
-
-    for img in arr:
-        min_val = np.minimum(min_val, np.min(img))
-        max_val = np.maximum(max_val, np.max(img))
-
-    return min_val, max_val
-
-
-def norm_min_max(arr, min=None, max=None) :
-    normalized_img = []
-
-    if min == None or max == None :
-        min, max = find_min_max(arr)
-
-    for img in arr :
-        img = (img - min) / (max - min)
-        normalized_img.append(img)
+def norm_min_max(image) :
+    min_val, max_val = np.min(image), np.max(image)
+    normalized_img = ( (image - min_val) / (max_val - min_val) ) * 255
 
     return normalized_img
 
+def create_paint(image, mask) :
+    channels = []
+    for i in range(1, 4) :
+        channels.append(norm_min_max(image[:, :, i]))
 
-def rescale(arr, ch=None) :
+    rgb_image = np.stack(channels, axis=-1).astype(np.uint8)
+    h, w, c = rgb_image.shape
     
-    rescaled_img = []
+    if h < 32 :
+        rgb_image = cv2.resize(rgb_image, (w * 10, h * 10), interpolation=cv2.INTER_NEAREST)
 
-    min_max_bands = {
-        0 : (0, 3609),
-        1 : (22.180136, 7627.1133),
-        2 : (104.0, 8188.0),
-        3 : (80.08951, 9220.0),
-        4 : (109.74214, 7533.0),
-        5 : (66.0, 7251.0),
-        6 : (65.5, 7193.0),
-        7 : (87.7459, 10516.0),
-        8 : (74.0, 7076.0),
-        9 : (90.4, 5163.5),
-        10 : (96.06991, 7075.5),
-        11 : (82.5, 6870.0)
-    }
+    elif h < 64 :
+        rgb_image = cv2.resize(rgb_image, (w * 5, h * 5), interpolation=cv2.INTER_NEAREST)
 
-    if ch != None :
-        # min, max = 0, 65536
-        min, max = min_max_bands[ch]
+    elif h < 128 :
+        rgb_image = cv2.resize(rgb_image, (w * 3, h * 3), interpolation=cv2.INTER_NEAREST)
+    
     else :
-        min, max = -1, 1
+        rgb_image = cv2.resize(rgb_image, (w, h), interpolation=cv2.INTER_NEAREST)
+
+    if np.max(mask) > 0 :
         
-    for img in arr :    
-        img = ( (img - min)/(max-min) ) * 255
-        img[img < 0] = 0
-        rescaled_img.append(img)
+        _, mask_binary = cv2.threshold(mask, 50, 255, cv2.THRESH_BINARY)
+        mask_binary = mask_binary[:, :, 0]
 
-    return rescaled_img
+        highlight_color = [0, 0, 255]
+        alpha = 0.4
 
+        highlighted_image = rgb_image.copy()
+        for c in range(3) :
+            highlighted_image[:, :, c] = np.where(mask_binary == 255, highlight_color[c], rgb_image[:, :, c])
+
+        painted_image = cv2.addWeighted(rgb_image, 1 - alpha, highlighted_image, alpha, 0)
+
+        return painted_image        
 
 def formula(bandA, bandB) :
     new_band = []
@@ -111,7 +91,7 @@ def export_images(images, source_path, export_path) :
         image = images[i]
         H, W, C = image.shape
         
-        image = cv2.resize(image, (W * 10, H * 10), interpolation=cv2.INTER_CUBIC)
+        image = cv2.resize(image, (W * 1, H * 1), interpolation=cv2.INTER_CUBIC)
         
         file_path = os.path.join(export_path, file_names[i])
         tiff.imwrite(file_path, image)
@@ -122,24 +102,28 @@ def preprocess(folder_path) :
     ch_num = [0,1,2,3,4,5,6,7,8,9,10,11]
     channels = []
     for i in ch_num :
-        ch = rescale(select_band(i, folder_path), ch=i)
+        ch = select_band(i, folder_path)
         channels.append(ch)
 
     for i in range(1, 4) :
         for j in range(1, 4) :
             if i != j :
-                ch = rescale(formula(channels[i], channels[j]))
+                ch = formula(channels[i], channels[j])
                 channels.append(ch)
 
     for i in range(10, 12) :
         for j in range(10, 12) :
             if i != j :
-                ch = rescale(formula(channels[i], channels[j]))
+                ch = formula(channels[i], channels[j])
                 channels.append(ch)
 
     
     images = [np.stack([channels[i][j] for i in range(len(channels))], axis=-1, dtype=np.float32) for j in range(len(channels[0]))]
+
+    preprocessed_images = []
+    for image in images :
+        preprocessed_images.append(norm_min_max(image))
     
-    return images
+    return preprocessed_images
     
         

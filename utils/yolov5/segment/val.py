@@ -27,9 +27,11 @@ import subprocess
 import sys
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
+
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from math import ceil
 
 import numpy as np
 import torch
@@ -345,8 +347,30 @@ def run(
             binary_mask = np.expand_dims(binary_mask.numpy(), axis=-1)
             binary_mask = np.repeat(binary_mask, 3, axis=-1)
 
-            binary_mask = cv2.resize(binary_mask, (h//10, w//10), interpolation=cv2.INTER_NEAREST)
-            binary_mask = cv2.resize(binary_mask, (h, w), interpolation=cv2.INTER_NEAREST)
+            binary_mask = cv2.resize(binary_mask, (int(w*0.985), int(h*0.985)), interpolation=cv2.INTER_NEAREST)
+
+            crop_margin_w = ceil(w * 0.05)
+            crop_margin_h = ceil(h * 0.05)
+
+            x1 = crop_margin_w
+            x2 = w - crop_margin_w
+            y1 = crop_margin_h
+            y2 = h - crop_margin_h
+
+            binary_mask = binary_mask[y1:y2, x1:x2]
+            binary_mask = cv2.resize(binary_mask, (w, h), interpolation=cv2.INTER_NEAREST)
+
+            if h < 32 :
+                binary_mask = cv2.resize(binary_mask, (w * 10, h * 10), interpolation=cv2.INTER_NEAREST)
+
+            elif h < 64 :
+                binary_mask = cv2.resize(binary_mask, (w * 5, h * 5), interpolation=cv2.INTER_NEAREST)
+
+            elif h < 128 :
+                binary_mask = cv2.resize(binary_mask, (w * 3, h * 3), interpolation=cv2.INTER_NEAREST)
+            
+            else :
+                binary_mask = cv2.resize(binary_mask, (w, h), interpolation=cv2.INTER_NEAREST)
 
             exp_path = os.path.join(os.getcwd(), 'utils', 'masks', 'mask.jpg')
             
@@ -382,6 +406,27 @@ def run(
                 )
                 save_one_json(predn, jdict, path, class_map, pred_masks)  # append to COCO-JSON dictionary
             # callbacks.run('on_val_image_end', pred, predn, path, names, im[si])
+        
+        for file_path in paths :
+            file_name = 'mask.jpg'
+            mask_path = os.path.join(os.getcwd(), 'utils', 'masks')
+            if file_name not in os.listdir(mask_path) :
+                h, w, c = tiff.imread(file_path).shape
+
+                if h < 32 :
+                    h, w = h * 10, w * 10
+
+                elif h < 64 :
+                    h, w = h * 5, w * 5
+
+                elif h < 128 :
+                    h, w = h * 3, w * 3
+                
+                else :
+                    h, w = h, w
+
+                empty_mask = np.ones((h, w, 3), dtype=np.uint8)
+                plt.imsave(os.path.join(mask_path, file_name), empty_mask)
 
         # Plot images
         if plots and batch_i < 3:
