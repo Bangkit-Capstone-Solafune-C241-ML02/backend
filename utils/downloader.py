@@ -55,7 +55,7 @@ def create_polygon_from_center(center_coord, corner_offset):
   ]
   return polygon_coords
 
-def download(lat, long):
+def download(lat, long, uid):
     # Define the region of interest (ROI)
     roi = ee.Geometry.Polygon(
         [create_polygon_from_center((long, lat), (0.0138/3))]
@@ -71,7 +71,7 @@ def download(lat, long):
     }
 
     # Export the image to a local file
-    output_path = os.path.join(wd, 'utils','tif_from_sentinel','sentinel2_image.tif')
+    output_path = os.path.join(wd, 'utils','tif_from_sentinel',f'sentinel2_image_{uid}.tif')
     geemap.ee_export_image(image, filename=output_path, **export_params)
 
     print("Image exported to:", output_path)

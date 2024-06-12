@@ -26,17 +26,18 @@ def download_tif():
     data = request.get_json()
     lat = data.get('latitude')
     lng = data.get('longitude')
+    uid = data.get('uid', 'defaultUID')
 
     # Download the TIF file
-    download(lng, lat)
+    download(lng, lat, uid)
 
     # Convert TIF file to jpg
     print("Converting...")
-    convert(1, 2, 3, 'utils/tif_from_sentinel', 'utils/jpg_from_sentinel')
+    convert(1, 2, 3, 'utils/tif_from_sentinel', 'utils/jpg_from_sentinel', uid)
 
     # Return the response
     wd = os.getcwd()
-    img_path = os.path.join(wd, 'utils', 'jpg_from_sentinel', 'sentinel2_preprocessed.jpg')
+    img_path = os.path.join(wd, 'utils', 'jpg_from_sentinel', f'sentinel2_preprocessed_{uid}.jpg')
     return send_file(img_path, mimetype='image/jpeg'), 200
 
 # Convert TIF file from sentinel
