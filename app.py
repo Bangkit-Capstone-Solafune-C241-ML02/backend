@@ -114,7 +114,6 @@ def convert_tif_upload():
 
     # Convert TIF file to jpg
     print("Converting...")
-    print("\n\n\n\n",uid,"\n\n\n\n")
     convert(band1, band2, band3, os.path.join('utils', 'tif_from_upload'), os.path.join('utils', 'jpg_from_upload'), uid, 'upload_image.tif')
 
     # Return the response
