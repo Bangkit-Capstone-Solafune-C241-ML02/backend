@@ -85,9 +85,9 @@ def upload_tif():
         save_path = os.path.join(wd, 'utils', 'tif_from_upload', f'sentinel2_image_{uid}.tif')
 
         # If the file is .tiff, change the extension to .tif
-        if file.filename.lower().endswith('.tiff'):
-            filename = file.filename.rsplit('.', 1)[0] + '.tif'
-            save_path = os.path.join(wd, 'utils', 'tif_from_upload', filename)
+        # if file.filename.lower().endswith('.tiff'):
+        #     filename = file.filename.rsplit('.', 1)[0] + '.tif'
+        #     save_path = os.path.join(wd, 'utils', 'tif_from_upload', filename)
 
         file.save(save_path)
 
