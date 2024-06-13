@@ -1,6 +1,0 @@
-path: E:\SOLAFUNE\backend-solafune\utils\predict
-train: train
-val: val
-
-nc: 1
-names: ['solarpanel']

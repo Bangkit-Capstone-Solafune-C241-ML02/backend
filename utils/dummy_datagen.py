@@ -3,7 +3,7 @@ import shutil
 import tifffile as tiff
 from utils.preprocessing import preprocess, export_images
 
-def create_dummy_folder(dummy_main_path) :
+def create_dummy_folder(dummy_main_path, uid) :
     """
     Function to create the folder that mimmick the trainig and validation folder structure of yolov5
     Folder Structure :
@@ -44,9 +44,9 @@ def create_dummy_folder(dummy_main_path) :
 
     """
     # Main folder
-    masks_folder_path = os.path.join(dummy_main_path, 'masks')
-    painted_image_folder_path = os.path.join(dummy_main_path, 'painted_image')
-    dummy_folder_path = os.path.join(dummy_main_path, 'predict')
+    masks_folder_path = os.path.join(dummy_main_path, f'mask_{uid}')
+    painted_image_folder_path = os.path.join(dummy_main_path, f'painted_image_{uid}')
+    dummy_folder_path = os.path.join(dummy_main_path, f'predict_{uid}')
     # Train, Val, Config, Preprocessed folder
     train_folder_path = os.path.join(dummy_folder_path, 'train')
     val_folder_path = os.path.join(dummy_folder_path, 'val')
@@ -75,6 +75,7 @@ def create_dummy_folder(dummy_main_path) :
 
     # Folder path dictionary
     folder_path = {
+        'rgb'
         'painted_image' : painted_image_folder_path,
         'masks' : masks_folder_path,
         'dummy' : dummy_folder_path,
@@ -110,12 +111,12 @@ names: ['solarpanel']"""
     with open(os.path.join(config_path, f'config.yaml'), 'w') as yaml :
         yaml.write(config)
     
-def delete_dummy_folder(main_path) :
+def delete_dummy_folder(main_path, uid) :
     """
     Delete the whole dummy folder after a predict
     """
     # Define the dummy folder
-    dummy_folder_path = os.path.join(main_path, 'predict')
+    dummy_folder_path = os.path.join(main_path, f'predict_{uid}')
 
     try :
         # If the folder exist, delete it
@@ -147,11 +148,16 @@ def write_dummy_label(source_path, destination_path) :
             data.write(dummy_labels)
 
 
-def create_dummy_data(dummy_main_path, source_path) :
-    folder_path = create_dummy_folder(dummy_main_path)
+def create_dummy_data(dummy_main_path, source_path, uid, from_sentinel=True) :
+    folder_path = create_dummy_folder(dummy_main_path, uid)
 
-    images = preprocess(source_path)
-    export_images(images, source_path, folder_path['preprocessed'])
+    if from_sentinel :
+        image_path = os.path.join(source_path, f'sentinel2_image_{uid}.tif')
+    else :
+        image_path = os.path.join(source_path, f'upload_image_{uid}.tif')
+
+    images = preprocess(image_path)
+    export_images(images, image_path, folder_path['preprocessed'])
 
     write_tiff(folder_path['preprocessed'], folder_path['train_image'])
     write_tiff(folder_path['preprocessed'], folder_path['val_image'])

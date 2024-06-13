@@ -2,6 +2,7 @@ import os
 import tifffile
 import numpy as np
 from PIL import Image
+from cv2 import threshold, THRESH_BINARY, imread
 
 def normalize(channel):
     min_val, max_val = np.min(channel), np.max(channel)
@@ -47,8 +48,8 @@ def convert(b1, b2, b3, source_folder, target_folder, uid, filename=None):
     # Define the paths
     wd = os.getcwd()
     if filename == 'upload_image.tif':
-        tif_path = os.path.join(wd, source_folder, 'upload_image.tif')
-        jpg_filename = 'upload_preprocessed.jpg'
+        tif_path = os.path.join(wd, source_folder, f'sentinel2_image_{uid}.tif')
+        jpg_filename = f'sentinel2_preprocessed_{uid}.jpg'
     else:
         tif_path = os.path.join(wd, source_folder, f'sentinel2_image_{uid}.tif')
         jpg_filename = f'sentinel2_preprocessed_{uid}.jpg'
@@ -60,3 +61,28 @@ def convert(b1, b2, b3, source_folder, target_folder, uid, filename=None):
     images = preprocess(images, b1, b2, b3)
     images.save(jpg_path)
     print(f"Converted {tif_path} to {jpg_path}")
+
+def count_pixel(mask_path) :
+    mask = imread(mask_path)
+
+    _, binary_mask = threshold(mask, 50, 255, THRESH_BINARY)
+    binary_mask = binary_mask.astype(np.uint8)
+    binary_mask = binary_mask[:, :, 0] // 255
+    count = np.sum(binary_mask)
+
+    return count
+
+
+def count_area(mask_path) : #m^2 detected solar panel
+    pixel_detected = count_pixel(mask_path)
+    spatial_resolution = 10 # in meters
+
+    area = pixel_detected * (spatial_resolution)
+    return area
+
+def count_power(mask_path) : # Estimated watt generated from the solar panel
+    area = count_area(mask_path)
+    w = 80.4 #(w / m^2)
+    power = (area * w) / 1000
+
+    return round(power, 2)

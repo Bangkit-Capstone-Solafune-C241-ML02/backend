@@ -360,6 +360,17 @@ def run(
             binary_mask = binary_mask[y1:y2, x1:x2]
             binary_mask = cv2.resize(binary_mask, (w, h), interpolation=cv2.INTER_NEAREST)
 
+            if os.name == 'nt':
+                file_name = paths[si].split('\\')[-1].replace('tif', 'jpg')
+                uid = paths[si].split('\\')[-1].split('_')[-1].split('.')[0]
+            else :
+                file_name = paths[si].split('/')[-1].replace('tif', 'jpg')
+                uid = paths[si].split('/')[-1].split('_')[-1].split('.')[0]
+
+
+            exp_path_original = os.path.join(os.getcwd(), 'utils', f'mask_{uid}', 'original_'+file_name)
+            plt.imsave(exp_path_original, binary_mask)
+
             if h < 32 :
                 binary_mask = cv2.resize(binary_mask, (w * 10, h * 10), interpolation=cv2.INTER_NEAREST)
 
@@ -372,8 +383,8 @@ def run(
             else :
                 binary_mask = cv2.resize(binary_mask, (w, h), interpolation=cv2.INTER_NEAREST)
 
-            exp_path = os.path.join(os.getcwd(), 'utils', 'masks', 'mask.jpg')
             
+            exp_path = os.path.join(os.getcwd(), 'utils', f'mask_{uid}', file_name)
             plt.imsave(exp_path, binary_mask)
             
             # Predictions
@@ -408,8 +419,14 @@ def run(
             # callbacks.run('on_val_image_end', pred, predn, path, names, im[si])
         
         for file_path in paths :
-            file_name = 'mask.jpg'
-            mask_path = os.path.join(os.getcwd(), 'utils', 'masks')
+            if os.name == 'nt':
+                file_name = file_path.split('\\')[-1].replace('tif', 'jpg')
+                uid = file_path.split('\\')[-1].split('_')[-1].split('.')[0]
+            else :
+                file_name = file_path.split('/')[-1].replace('tif', 'jpg')
+                uid = file_path.split('/')[-1].split('_')[-1].split('.')[0]
+
+            mask_path = os.path.join(os.getcwd(), 'utils', f'mask_{uid}')
             if file_name not in os.listdir(mask_path) :
                 h, w, c = tiff.imread(file_path).shape
 

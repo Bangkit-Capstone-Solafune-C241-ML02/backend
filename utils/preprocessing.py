@@ -4,20 +4,15 @@ import numpy as np
 import cv2
 
 def get_file_names(path) :
-    return sorted([i for i in os.listdir(path) if i[0] != '.'])
+    if os.name == 'nt':
+        return [path.split('\\')[-1]]
+    else :
+        return [path.split('/')[-1]]
 
-def read_images(path) :
-    file_names = get_file_names(path)
+def read_images(file_path) :
+    images = tiff.imread(file_path)
 
-    images = []
-    for file_name in file_names :
-        file_path = os.path.join(path, file_name)
-        
-        image = tiff.imread(file_path)
-
-        images.append(np.array(image, dtype=np.float32))
-    
-    return images
+    return [images]
 
 
 def select_band(band, path) :
@@ -97,12 +92,12 @@ def export_images(images, source_path, export_path) :
         tiff.imwrite(file_path, image)
 
 
-def preprocess(folder_path) :
+def preprocess(file_path) :
     # Python list for containing every channels from image
     ch_num = [0,1,2,3,4,5,6,7,8,9,10,11]
     channels = []
     for i in ch_num :
-        ch = select_band(i, folder_path)
+        ch = select_band(i, file_path)
         channels.append(ch)
 
     for i in range(1, 4) :
