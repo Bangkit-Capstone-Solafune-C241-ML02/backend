@@ -26,11 +26,12 @@ def export_painted_mask(dummy_main_path, source_path, uid) :
     cv2imwrite(save_path, painted_image)
 
 def clear_folder(folder_path) :
-    for folder in [i for i in os.listdir(folder_path) if i[0] != '.'] :
-        try :
-            rmtree(os.path.join(folder_path, folder))
-        except :
-            os.remove(os.path.join(folder_path, folder))
+    if os.path.isdir(folder_path) :
+        for folder in [i for i in os.listdir(folder_path) if i[0] != '.'] :
+            try :
+                rmtree(os.path.join(folder_path, folder))
+            except :
+                os.remove(os.path.join(folder_path, folder))
 
 def predict_from_path(source_path, model_name, uid, dummy_main_path=None) :
     wd = os.getcwd() # Get working directory
@@ -47,6 +48,10 @@ def predict_from_path(source_path, model_name, uid, dummy_main_path=None) :
     painted_mask = os.path.join(dummy_main_path, 'painted_image') # Painted mask path
     data_path = os.path.join(wd, 'utils', f'predict_{uid}', 'config', 'config.yaml') # Model config path
 
+    clear_folder(os.path.join(dummy_main_path, f'painted_image_{uid}'))
+    clear_folder(os.path.join(dummy_main_path, f'mask_{uid}'))
+    clear_folder(os.path.join(dummy_main_path, f'rgb_{uid}'))
+
     # clear_folder(mask_path) # Clear mask folder
     # clear_folder(painted_mask) # Clear painted mask folder
     
@@ -58,10 +63,8 @@ def predict_from_path(source_path, model_name, uid, dummy_main_path=None) :
 
 
     # rmtree(os.path.join(dummy_main_path, f'predict_{uid}')) # Delete dummy folder after predict
-    # rmtree(os.path.join(dummy_main_path, f'painted_image_{uid}'))
-    # rmtree(os.path.join(dummy_main_path, f'mask_{uid}'))
-    # rmtree(os.path.join(dummy_main_path, f'rgb_{uid}'))
-    # clear_folder(val_seg_path) # Clear validation results folder
+    
+    clear_folder(os.path.join(val_seg_path, f'exp_{uid}')) # Clear validation results folder
     
 
 

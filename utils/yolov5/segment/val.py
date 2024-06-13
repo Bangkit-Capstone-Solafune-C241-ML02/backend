@@ -429,6 +429,9 @@ def run(
             mask_path = os.path.join(os.getcwd(), 'utils', f'mask_{uid}')
             if file_name not in os.listdir(mask_path) :
                 h, w, c = tiff.imread(file_path).shape
+                empty_mask = np.ones((h, w, 3), dtype=np.uint8)
+                mask_path = os.path.join(os.getcwd(), 'utils', f'mask_{uid}')
+                plt.imsave(os.path.join(mask_path, 'original_'+file_name), empty_mask)
 
                 if h < 32 :
                     h, w = h * 10, w * 10
@@ -441,8 +444,7 @@ def run(
                 
                 else :
                     h, w = h, w
-
-                empty_mask = np.ones((h, w, 3), dtype=np.uint8)
+           
                 plt.imsave(os.path.join(mask_path, file_name), empty_mask)
 
         # Plot images

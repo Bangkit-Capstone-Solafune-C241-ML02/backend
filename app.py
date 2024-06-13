@@ -192,10 +192,6 @@ def statistic():
     # Count the power
     power = count_power(mask_path)
 
-    print(pixel)
-    print(area)
-    print(power)
-
     return jsonify({"pixel": str(pixel), "area":format_number(area), "power":str(power)}), 200
 
 if __name__ == "__main__":
