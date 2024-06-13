@@ -5,7 +5,6 @@ import geemap
 # Get the current working directory
 wd = os.getcwd()
 cred_path = os.path.join(wd, 'utils','json','solafune-424011-11884393242c.json')
-output_path = os.path.join(wd, 'utils','tif_from_sentinel','sentinel2_image.tif')
 
 # Initialize Earth Engine
 service_account = 'abiya-946@solafune-424011.iam.gserviceaccount.com'
@@ -56,10 +55,10 @@ def create_polygon_from_center(center_coord, corner_offset):
   ]
   return polygon_coords
 
-def download(lat, long):
+def download(lat, long, uid):
     # Define the region of interest (ROI)
     roi = ee.Geometry.Polygon(
-        [create_polygon_from_center((long, lat), (0.015/2))]
+        [create_polygon_from_center((long, lat), (0.0138/3))]
     )
 
     # Get the mean image from the dataset
@@ -72,6 +71,7 @@ def download(lat, long):
     }
 
     # Export the image to a local file
+    output_path = os.path.join(wd, 'utils','tif_from_sentinel',f'sentinel2_image_{uid}.tif')
     geemap.ee_export_image(image, filename=output_path, **export_params)
 
     print("Image exported to:", output_path)
