@@ -199,4 +199,4 @@ def statistic():
     return jsonify({"pixel": str(pixel), "area":format_number(area), "power":str(power)}), 200
 
 if __name__ == "__main__":
-    app.run(host='192.168.18.25', port=5000, debug=True)
+    app.run(host=ip_address , port=5000, debug=True)
