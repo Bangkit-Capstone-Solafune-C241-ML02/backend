@@ -22,7 +22,7 @@ Insert gif or link to demo
 To deploy this project locally, follow these steps:
 
 ```bash
-  git clone https://github.com/Bangkit-Capstone-Solafune-C241-ML02/frontend.git
+  git clone https://github.com/Bangkit-Capstone-Solafune-C241-ML02/backend.git
 ```
 
 ```bash
