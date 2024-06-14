@@ -14,7 +14,7 @@ This repository is the backend of the Bangkit Academy batch 1 company capstone p
 
 ## Demo
 
-Insert gif or link to demo
+[Video Demo](https://youtu.be/DiSfKjOgrfk)
 
 
 ## Deployment
